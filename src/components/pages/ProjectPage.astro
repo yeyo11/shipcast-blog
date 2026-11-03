@@ -54,7 +54,8 @@ const description = about ?? latest?.entry.data.description ?? fill(words.launch
         </div>
       )}
     </div>
-    <section aria-label={fill(words.launches, { project: project.name })}>
+    <section aria-labelledby="launches">
+      <h2 id="launches" class="sr-only">{fill(words.launches, { project: project.name })}</h2>
       <ProjectTabs lang={lang} projects={projects} active={project.id} />
       {posts.length > 0 ? (
         <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">

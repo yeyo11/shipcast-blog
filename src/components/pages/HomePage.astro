@@ -33,7 +33,8 @@ const description = localized(blog.description, lang) ?? `${words.home}, ${brand
     ) : (
       <p class="card p-8 text-muted">{words.noLaunches}</p>
     )}
-    <section class="mt-16 sm:mt-20" aria-label={words.home}>
+    <section class="mt-16 sm:mt-20" aria-labelledby="all-launches">
+      <h2 id="all-launches" class="sr-only">{words.home}</h2>
       <ProjectTabs lang={lang} projects={withPosts} />
       {rest.length > 0 && (
         <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
