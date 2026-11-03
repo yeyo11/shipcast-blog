@@ -56,7 +56,7 @@ const others = alternates.filter((a) => a.lang !== lang);
         <Icon name="sun" class="theme-day-hidden" />
         <Icon name="moon" class="theme-night-hidden" />
       </button>
-      <a href={href(rssPath(lang))} class="grid size-10 place-items-center rounded-lg text-muted transition-colors hover:text-text" aria-label={words.rss}>
+      <a href={href(rssPath(lang))} class="hidden size-10 place-items-center rounded-lg text-muted transition-colors hover:text-text sm:grid" aria-label={words.rss}>
         <Icon name="rss" size={17} />
       </a>
     </div>
