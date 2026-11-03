@@ -1,0 +1,38 @@
+---
+// A cover, in this order: the article's own (`cover`), its project's (projects.yml), the launch image
+// (`image`), and otherwise one generated in CSS from the project's colour and name. No art is needed
+// for a project to look finished.
+import { inPublic, webpPath, webpSize } from '../lib/images.ts';
+import { href } from '../lib/posts.ts';
+
+interface Props {
+  src?: string | undefined;
+  alt?: string | undefined;
+  colour: string;
+  label: string;
+  class?: string;
+  /** The largest image on the page: loaded first, not lazily */
+  priority?: boolean;
+  sizes?: string;
+}
+const { src, alt = '', colour, label, class: className, priority = false, sizes = '(min-width: 1024px) 660px, 100vw' } = Astro.props;
+const optimized = src && inPublic(src);
+const size = optimized ? await webpSize(src) : undefined;
+---
+{src ? (
+  <img
+    src={href(optimized ? webpPath(src) : src)}
+    alt={alt}
+    width={size?.width}
+    height={size?.height}
+    sizes={sizes}
+    loading={priority ? 'eager' : 'lazy'}
+    fetchpriority={priority ? 'high' : 'auto'}
+    decoding={priority ? 'sync' : 'async'}
+    class:list={['h-full w-full object-cover', className]}
+  />
+) : (
+  <div class:list={['gen-cover h-full w-full', className]} style={`--cover: ${colour}`} aria-hidden="true">
+    <span class="gen-cover-name" style={`font-size: clamp(3.5rem, ${Math.max(5, Math.min(13, 110 / Math.max(label.length, 1)))}cqi, 9rem)`}>{label}</span>
+  </div>
+)}

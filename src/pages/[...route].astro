@@ -1,0 +1,65 @@
+---
+// Every HTML page but the 404, from one route so the language prefix can come and go: with one
+// language in brand.yml the pages live at the root (/, /my-article/, /projects/); with several, under
+// /<lang>/. Shipcast always links an article as <site>/<lang>/<slug>/, so on a one-language blog that
+// address is kept too, as a redirect to the article's own (see README, "Languages").
+import type { GetStaticPaths } from 'astro';
+import ArticlePage from '../components/pages/ArticlePage.astro';
+import HomePage from '../components/pages/HomePage.astro';
+import ProjectPage from '../components/pages/ProjectPage.astro';
+import ProjectsPage from '../components/pages/ProjectsPage.astro';
+import RedirectPage from '../components/pages/RedirectPage.astro';
+import { allPosts, allProjects, homePath, postPath, type Post, type Project } from '../lib/posts.ts';
+import { blog, brand, languages, localized, multilingual, primaryLanguage } from '../lib/site.ts';
+
+type Page =
+  | { kind: 'home'; lang: string }
+  | { kind: 'projects'; lang: string }
+  | { kind: 'project'; lang: string; project: Project }
+  | { kind: 'post'; post: Post }
+  | { kind: 'alias'; post: Post }
+  | { kind: 'languages' };
+
+export const getStaticPaths = (async () => {
+  const posts = await allPosts();
+  const projects = await allProjects();
+  const pages: Array<{ params: { route: string | undefined }; props: { page: Page } }> = [];
+  // '/en/my-article/' → 'en/my-article'; the root is undefined
+  const add = (path: string, page: Page) => pages.push({ params: { route: path.replace(/^\/|\/$/g, '') || undefined }, props: { page } });
+  for (const lang of languages) {
+    add(homePath(lang), { kind: 'home', lang });
+    add(`${homePath(lang)}projects/`, { kind: 'projects', lang });
+    for (const project of projects) add(`${homePath(lang)}projects/${project.id}/`, { kind: 'project', lang, project });
+  }
+  for (const post of posts) {
+    add(postPath(post), { kind: 'post', post });
+    if (!multilingual) add(`/${post.lang}/${post.slug}/`, { kind: 'alias', post });
+  }
+  if (multilingual) add('/', { kind: 'languages' });
+  return pages;
+}) satisfies GetStaticPaths;
+
+const { page } = Astro.props as { page: Page };
+---
+{page.kind === 'home' && <HomePage lang={page.lang} />}
+{page.kind === 'projects' && <ProjectsPage lang={page.lang} />}
+{page.kind === 'project' && <ProjectPage lang={page.lang} project={page.project} />}
+{page.kind === 'post' && <ArticlePage post={page.post} />}
+{page.kind === 'alias' && (
+  <RedirectPage
+    lang={page.post.lang}
+    to={postPath(page.post)}
+    title={page.post.entry.data.title}
+    description={page.post.entry.data.description}
+    image={page.post.entry.data.image ?? page.post.entry.data.cover}
+  />
+)}
+{page.kind === 'languages' && (
+  <RedirectPage
+    lang={primaryLanguage}
+    to={homePath(primaryLanguage)}
+    title={localized(blog.title, primaryLanguage) ?? brand.displayName}
+    description={localized(blog.description, primaryLanguage) ?? brand.displayName}
+    choices={languages.map((lang) => ({ lang, path: homePath(lang) }))}
+  />
+)}

@@ -1,0 +1,12 @@
+---
+// Cookieless visit counting, set in blog.yml (or Cloudflare's token in brand.yml), off by default and
+// loaded only in production builds: `astro dev` and the previews you run locally count nothing.
+import { blog, brand } from '../lib/site.ts';
+
+const config = blog.analytics;
+const cloudflareToken = config.provider === 'cloudflare' ? (config.token ?? brand.analytics.cloudflareWebAnalytics) : config.provider === 'none' ? brand.analytics.cloudflareWebAnalytics : undefined;
+const on = import.meta.env.PROD;
+---
+{on && config.provider === 'umami' && <script is:inline defer src={config.src} data-website-id={config.websiteId}></script>}
+{on && config.provider === 'plausible' && <script is:inline defer src={config.src} data-domain={config.domain}></script>}
+{on && cloudflareToken && <script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: cloudflareToken })}></script>}

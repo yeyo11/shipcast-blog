@@ -1,0 +1,28 @@
+---
+// GitHub Pages (and Cloudflare) serve this for any address that does not exist, with the status 404.
+import Base from '../layouts/Base.astro';
+import PostCard from '../components/PostCard.astro';
+import { t } from '../lib/i18n.ts';
+import { allProjects, homePath, href, postsIn } from '../lib/posts.ts';
+import { primaryLanguage } from '../lib/site.ts';
+
+const lang = primaryLanguage;
+const words = t(lang);
+const latest = (await postsIn(lang)).slice(0, 3);
+const projects = await allProjects();
+---
+<Base title={words.notFoundTitle} description={words.notFoundText} lang={lang} path="/404/" noindex>
+  <div class="mx-auto max-w-[64.5rem] px-6">
+    <div class="pt-14 pb-12 sm:pt-20">
+      <p class="stamp">404</p>
+      <h1 class="display mt-4 text-[clamp(3.5rem,11vw,7.5rem)]">{words.notFoundTitle}</h1>
+      <p class="mt-5 max-w-[40rem] text-[18px] leading-relaxed text-muted">{words.notFoundText}</p>
+      <a href={href(homePath(lang))} class="mt-8 inline-block rounded-lg border border-rail px-4 py-2 text-[15px] font-medium hover:bg-raised">{words.backHome}</a>
+    </div>
+    {latest.length > 0 && (
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+        {latest.map((post) => <PostCard post={post} project={projects.find((p) => p.id === post.project)} />)}
+      </div>
+    )}
+  </div>
+</Base>

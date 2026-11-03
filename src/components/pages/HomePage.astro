@@ -1,0 +1,45 @@
+---
+import Base from '../../layouts/Base.astro';
+import FeaturedCard from '../FeaturedCard.astro';
+import PostCard from '../PostCard.astro';
+import ProjectTabs from '../ProjectTabs.astro';
+import { t } from '../../lib/i18n.ts';
+import { allProjects, homePath, postsIn } from '../../lib/posts.ts';
+import { blog, brand, languages, localized } from '../../lib/site.ts';
+
+interface Props {
+  lang: string;
+}
+const { lang } = Astro.props;
+const words = t(lang);
+const posts = await postsIn(lang);
+const projects = await allProjects();
+const withPosts = projects.filter((p) => posts.some((post) => post.project === p.id));
+const projectOf = (id: string | undefined) => projects.find((p) => p.id === id);
+const [latest, ...rest] = posts;
+const title = localized(blog.title, lang) ?? words.home;
+const description = localized(blog.description, lang) ?? `${words.home}, ${brand.displayName}`;
+---
+<Base title={title} description={description} lang={lang} path={homePath(lang)} section="home" alternates={languages.map((l) => ({ lang: l, path: homePath(l) }))}>
+  <div class="mx-auto max-w-[64.5rem] px-6">
+    <div class="pt-14 pb-10 sm:pt-20 sm:pb-12">
+      <h1 class="display text-[clamp(4rem,13vw,8.5rem)]">{title}</h1>
+      {localized(blog.description, lang) && <p class="mt-5 max-w-[40rem] text-[18px] leading-relaxed text-muted sm:text-[20px]">{description}</p>}
+    </div>
+    {latest ? (
+      <section aria-label={words.latest}>
+        <FeaturedCard post={latest} project={projectOf(latest.project)} />
+      </section>
+    ) : (
+      <p class="card p-8 text-muted">{words.noLaunches}</p>
+    )}
+    <section class="mt-16 sm:mt-20" aria-label={words.home}>
+      <ProjectTabs lang={lang} projects={withPosts} />
+      {rest.length > 0 && (
+        <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+          {rest.map((post) => <PostCard post={post} project={projectOf(post.project)} />)}
+        </div>
+      )}
+    </section>
+  </div>
+</Base>

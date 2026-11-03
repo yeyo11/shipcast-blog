@@ -1,0 +1,102 @@
+---
+// An article: the big title, the description as its subtitle, the author and the date, the project
+// bar (project, version, repository, the star button), a rule, then the text in a narrow column with
+// images wider than it. The star button comes back at the end.
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Author from '../Author.astro';
+import Icon from '../Icon.astro';
+import StarButton from '../StarButton.astro';
+import { fill, formatDate, languageName, t } from '../../lib/i18n.ts';
+import { shownStars } from '../../lib/github.ts';
+import { href, postPath, projectById, projectPath, translationsOf, type Post } from '../../lib/posts.ts';
+
+interface Props {
+  post: Post;
+}
+const { post } = Astro.props;
+const { lang } = post;
+const data = post.entry.data;
+const words = t(lang);
+const { Content } = await render(post.entry);
+const project = await projectById(post.project);
+const repo = data.repo ?? project?.repo;
+const count = await shownStars(project?.github);
+const translations = await translationsOf(post);
+const alternates = [{ lang, path: postPath(post) }, ...translations.map((p) => ({ lang: p.lang, path: postPath(p) }))];
+---
+<Base
+  title={data.title}
+  description={data.description}
+  lang={lang}
+  path={postPath(post)}
+  alternates={alternates}
+  image={data.image ?? data.cover}
+  imageAlt={data.image ? data.imageAlt : data.coverAlt}
+  article={{ published: data.pubDate, modified: data.updatedDate, tags: data.tags }}
+>
+  <article class="mx-auto max-w-[75rem] px-6">
+    <header class="mx-auto max-w-[44.625rem] pt-16 sm:pt-24">
+      <h1 class="display text-[clamp(2.75rem,7vw,4.75rem)]">{data.title}</h1>
+      <p class="mt-6 text-[18px] leading-[1.6] text-muted sm:text-[20px]">{data.description}</p>
+      <div class="mt-8 flex items-center justify-between gap-4">
+        <Author />
+        <div class="flex shrink-0 flex-col items-end">
+          <time datetime={data.pubDate.toISOString()} class="stamp">{formatDate(data.pubDate, lang)}</time>
+        </div>
+      </div>
+      {(project || repo) && (
+        <div class="mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-4 rounded-xl border border-hairline px-4 py-3">
+          <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
+            {project && (
+              <a href={href(projectPath(lang, project.id))} class="flex items-center gap-2 text-[15px] font-semibold hover:underline">
+                <span class="size-2.5 rounded-full" style={`background: ${project.colour}`} aria-hidden="true"></span>
+                {project.name}
+              </a>
+            )}
+            {data.version && <span class="stamp normal-case">{data.version}</span>}
+            {repo && (
+              <a href={repo} class="inline-flex items-center gap-1.5 text-[14px] text-muted hover:text-text">
+                <Icon name="github" size={15} />
+                {words.repository}
+              </a>
+            )}
+          </div>
+          {repo && <StarButton repo={repo} lang={lang} count={count} />}
+        </div>
+      )}
+      {translations.length > 0 && (
+        <ul class="mt-5 flex flex-wrap gap-x-4 text-[14px] text-muted">
+          {translations.map((other) => (
+            <li><a href={href(postPath(other))} hreflang={other.lang} lang={other.lang} class="underline decoration-rail underline-offset-4 hover:text-text">{fill(t(other.lang).readIn, { language: languageName(other.lang) })}</a></li>
+          ))}
+        </ul>
+      )}
+      <hr class="mt-12 border-hairline" />
+    </header>
+    <div class="prose mt-12">
+      <Content />
+    </div>
+    {repo && (
+      <aside class="mx-auto mt-20 max-w-[44.625rem]">
+        <div class="card flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-7">
+          <p class="text-[16px] leading-relaxed">{fill(words.starPrompt, { project: project?.name ?? data.title })}</p>
+          <StarButton repo={repo} lang={lang} count={count} />
+        </div>
+      </aside>
+    )}
+  </article>
+  <script is:inline>
+    document.addEventListener('click', function (event) {
+      var button = event.target instanceof Element ? event.target.closest('[data-copy]') : null;
+      if (!button) return;
+      var code = button.parentElement && button.parentElement.nextElementSibling;
+      if (!code || !navigator.clipboard) return;
+      navigator.clipboard.writeText(code.innerText.replace(/\n$/, '')).then(function () {
+        var label = button.textContent;
+        button.textContent = button.getAttribute('data-copied');
+        setTimeout(function () { button.textContent = label; }, 1600);
+      });
+    });
+  </script>
+</Base>

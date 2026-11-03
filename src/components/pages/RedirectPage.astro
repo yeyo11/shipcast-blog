@@ -1,0 +1,65 @@
+---
+// A page that only sends the reader on: to the article's own address from the /<lang>/<slug>/ one
+// Shipcast links to on a one-language blog, or to a language from / on a blog with several. It keeps
+// the article's title, description and image, so a link card built from this address still shows it.
+import { absolute, href } from '../../lib/posts.ts';
+import { brand } from '../../lib/site.ts';
+import { languageName, t } from '../../lib/i18n.ts';
+
+interface Props {
+  lang: string;
+  to: string;
+  title: string;
+  description: string;
+  image?: string | undefined;
+  /** For the language picker at /: every language's home */
+  choices?: Array<{ lang: string; path: string }>;
+}
+const { lang, to, title, description, image, choices = [] } = Astro.props;
+const target = absolute(to, Astro.site);
+const words = t(lang);
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} | {brand.displayName}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={target} />
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="refresh" content={`0; url=${href(to)}`} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={target} />
+    <meta property="og:image" content={absolute(image ?? '/og-default.png', Astro.site)} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href={href('/favicon.svg')} type="image/svg+xml" />
+    {choices.length > 0 && (
+      <script is:inline define:vars={{ choices: choices.map((c) => ({ lang: c.lang, url: href(c.path) })) }}>
+        // The reader's own language when the blog has it; the meta refresh covers the rest
+        var wanted = (navigator.languages || []).map(function (l) { return l.slice(0, 2).toLowerCase(); });
+        for (var i = 0; i < wanted.length; i++) {
+          var match = choices.find(function (c) { return c.lang === wanted[i]; });
+          if (match) { location.replace(match.url); break; }
+        }
+      </script>
+    )}
+    <style is:inline>
+      body { background: #141413; color: #f4f2ec; font: 16px/1.5 system-ui, sans-serif; display: grid; place-items: center; min-height: 100vh; margin: 0; }
+      a { color: inherit; }
+      ul { list-style: none; padding: 0; display: flex; gap: 1.5rem; justify-content: center; }
+    </style>
+  </head>
+  <body>
+    <main>
+      {choices.length > 0 ? (
+        <nav aria-label={words.chooseLanguage}>
+          <ul>{choices.map((c) => <li><a href={href(c.path)} hreflang={c.lang} lang={c.lang}>{languageName(c.lang)}</a></li>)}</ul>
+        </nav>
+      ) : (
+        <p>{words.redirecting} <a href={href(to)}>{target}</a></p>
+      )}
+    </main>
+  </body>
+</html>

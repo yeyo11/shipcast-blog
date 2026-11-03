@@ -1,0 +1,17 @@
+---
+// The logo: your initials on the yellow tile (src/lib/art.ts draws the same tile as the favicon) and
+// your name beside it. Yellow appears here, on the active tab and on the star button, nowhere else.
+import { initials } from '../lib/art.ts';
+import { brand } from '../lib/site.ts';
+import { href, homePath } from '../lib/posts.ts';
+import { t } from '../lib/i18n.ts';
+
+interface Props {
+  lang: string;
+}
+const { lang } = Astro.props;
+---
+<a href={href(homePath(lang))} class="flex items-center gap-2.5 rounded-lg font-semibold tracking-tight" aria-label={`${brand.displayName}, ${t(lang).home_link}`}>
+  <span class="grid size-8 shrink-0 place-items-center rounded-[9px] bg-yellow pt-px font-display text-[19px] leading-none font-black text-on-yellow" aria-hidden="true">{initials(brand.displayName)}</span>
+  <span class="hidden text-[15px] sm:inline">{brand.displayName}</span>
+</a>

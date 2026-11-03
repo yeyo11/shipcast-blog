@@ -1,0 +1,70 @@
+---
+// The floating pill: the logo, the two sections, then the language switch (with several languages),
+// the theme toggle and the feed.
+import Icon from './Icon.astro';
+import Logo from './Logo.astro';
+import { t, languageName } from '../lib/i18n.ts';
+import { href, homePath, projectsPath, rssPath } from '../lib/posts.ts';
+import { multilingual } from '../lib/site.ts';
+
+interface Props {
+  lang: string;
+  section?: 'home' | 'projects' | undefined;
+  /** This page in the other languages, when there are several */
+  alternates?: Array<{ lang: string; path: string }> | undefined;
+}
+const { lang, section, alternates = [] } = Astro.props;
+const words = t(lang);
+const links = [
+  { id: 'home', label: words.home, path: homePath(lang) },
+  { id: 'projects', label: words.projects, path: projectsPath(lang) },
+];
+const others = alternates.filter((a) => a.lang !== lang);
+---
+<header class="sticky top-0 z-20 px-3 pt-3 sm:px-4 sm:pt-4">
+  <nav
+    class="mx-auto flex h-16 w-full max-w-[75rem] items-center gap-2 rounded-2xl border border-hairline bg-ground/85 pr-2 pl-4 backdrop-blur-md sm:h-[4.5rem] sm:pr-3 sm:pl-6"
+    aria-label={words.home_link}
+  >
+    <Logo lang={lang} />
+    <ul class="mx-auto flex items-center gap-1 text-[15px] font-medium sm:gap-2">
+      {links.map((link) => (
+        <li>
+          <a
+            href={href(link.path)}
+            class:list={['rounded-lg px-2.5 py-2 transition-colors hover:text-text sm:px-3', section === link.id ? 'text-text' : 'text-muted']}
+            aria-current={section === link.id ? 'page' : undefined}
+          >
+            {link.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+    <div class="flex items-center gap-0.5">
+      {multilingual && others.length > 0 && (
+        <ul class="flex items-center" aria-label={words.languages}>
+          {others.map((other) => (
+            <li>
+              <a href={href(other.path)} hreflang={other.lang} lang={other.lang} class="stamp rounded-lg px-2 py-2 hover:text-text" title={languageName(other.lang)}>
+                {other.lang}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+      <button id="theme-toggle" type="button" class="grid size-10 place-items-center rounded-lg text-muted transition-colors hover:text-text" aria-label={words.themeToggle}>
+        <Icon name="sun" class="theme-day-hidden" />
+        <Icon name="moon" class="theme-night-hidden" />
+      </button>
+      <a href={href(rssPath(lang))} class="grid size-10 place-items-center rounded-lg text-muted transition-colors hover:text-text" aria-label={words.rss}>
+        <Icon name="rss" size={17} />
+      </a>
+    </div>
+  </nav>
+</header>
+<style is:global>
+  [data-theme="day"] .theme-day-hidden,
+  [data-theme="night"] .theme-night-hidden {
+    display: none;
+  }
+</style>

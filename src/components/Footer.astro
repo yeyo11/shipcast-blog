@@ -1,0 +1,24 @@
+---
+// The footer: the author and the year, the GitHub profile, the feed, and a quiet credit to Shipcast.
+import { href, rssPath } from '../lib/posts.ts';
+import { brand, githubProfile } from '../lib/site.ts';
+
+interface Props {
+  lang: string;
+}
+const { lang } = Astro.props;
+const profiles = Object.entries(brand.handles ?? {});
+---
+<footer class="mx-auto mt-24 w-full max-w-[75rem] px-6 pb-12">
+  <div class="flex flex-col gap-4 border-t border-hairline pt-8 text-[14px] text-muted sm:flex-row sm:items-center sm:justify-between">
+    <p>© {new Date().getFullYear()} {brand.displayName}</p>
+    <ul class="flex flex-wrap items-center gap-x-5 gap-y-2">
+      <li><a href={githubProfile} rel="me" class="hover:text-text">GitHub</a></li>
+      {profiles.map(([network, url]) => (
+        <li><a href={url} rel="me" class="capitalize hover:text-text">{network === 'devto' ? 'dev.to' : network}</a></li>
+      ))}
+      <li><a href={href(rssPath(lang))} class="hover:text-text">RSS</a></li>
+      <li><a href="https://github.com/yeyo11/shipcast" class="hover:text-text">Launched with Shipcast</a></li>
+    </ul>
+  </div>
+</footer>

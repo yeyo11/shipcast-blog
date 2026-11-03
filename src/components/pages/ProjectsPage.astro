@@ -1,0 +1,45 @@
+---
+// Every project, each with its cover, what it is and how many launches it has.
+import Base from '../../layouts/Base.astro';
+import Cover from '../Cover.astro';
+import { fill, t } from '../../lib/i18n.ts';
+import { allProjects, href, postsIn, projectPath, projectsPath } from '../../lib/posts.ts';
+import { languages, localized } from '../../lib/site.ts';
+
+interface Props {
+  lang: string;
+}
+const { lang } = Astro.props;
+const words = t(lang);
+const posts = await postsIn(lang);
+const projects = await allProjects();
+---
+<Base title={words.projects} description={words.projectsIntro} lang={lang} path={projectsPath(lang)} section="projects" alternates={languages.map((l) => ({ lang: l, path: projectsPath(l) }))}>
+  <div class="mx-auto max-w-[64.5rem] px-6">
+    <div class="pt-14 pb-10 sm:pt-20 sm:pb-12">
+      <h1 class="display text-[clamp(4rem,13vw,8.5rem)]">{words.projects}</h1>
+      <p class="mt-5 max-w-[40rem] text-[18px] leading-relaxed text-muted sm:text-[20px]">{words.projectsIntro}</p>
+    </div>
+    {projects.length === 0 && <p class="card p-8 text-muted">{words.noProjects}</p>}
+    <ul class="grid gap-4 sm:grid-cols-2 lg:gap-5">
+      {projects.map((project) => {
+        const own = posts.filter((p) => p.project === project.id);
+        const about = (project.description && localized(project.description, lang)) ?? own[0]?.entry.data.description;
+        return (
+          <li class="card group relative overflow-hidden transition-colors hover:border-rail">
+            <div class="aspect-[16/7] border-b border-hairline">
+              <Cover src={project.cover} colour={project.colour} label={project.name} sizes="(min-width: 640px) 500px, 100vw" />
+            </div>
+            <div class="p-6">
+              <h2 class="text-[20px] font-semibold">
+                <a href={href(projectPath(lang, project.id))} class="after:absolute after:inset-0 after:rounded-xl focus-visible:outline-none group-has-[:focus-visible]:underline">{project.name}</a>
+              </h2>
+              {about && <p class="mt-2 line-clamp-2 text-[15px] leading-relaxed text-muted">{about}</p>}
+              <p class="stamp mt-5">{own.length === 1 ? words.oneLaunch : fill(words.launchCount, { count: own.length })}</p>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</Base>

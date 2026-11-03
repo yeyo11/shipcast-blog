@@ -1,0 +1,6 @@
+# What the project's page says. Optional: a project without this file takes its words from its
+# latest article. The colour and cover live in projects.yml.
+name: Shipcast
+description:
+  en: Turns each GitHub release into a blog article and a post per channel, written from the code, and publishes every piece once you approve it.
+repo: https://github.com/yeyo11/shipcast

@@ -1,0 +1,68 @@
+---
+// A project's page: what it is, its stars and the star button, then every launch of it, with the
+// index's tabs so it reads as the index filtered.
+import Base from '../../layouts/Base.astro';
+import Icon from '../Icon.astro';
+import PostCard from '../PostCard.astro';
+import ProjectTabs from '../ProjectTabs.astro';
+import StarButton from '../StarButton.astro';
+import { fill, t } from '../../lib/i18n.ts';
+import { shownStars } from '../../lib/github.ts';
+import { allProjects, postsIn, projectPath, type Project } from '../../lib/posts.ts';
+import { languages, localized } from '../../lib/site.ts';
+
+interface Props {
+  lang: string;
+  project: Project;
+}
+const { lang, project } = Astro.props;
+const words = t(lang);
+const posts = (await postsIn(lang)).filter((p) => p.project === project.id);
+const all = await postsIn(lang);
+const projects = (await allProjects()).filter((p) => all.some((post) => post.project === p.id));
+const count = await shownStars(project.github);
+const about = project.description ? localized(project.description, lang) : undefined;
+const latest = posts[0];
+const description = about ?? latest?.entry.data.description ?? fill(words.launches, { project: project.name });
+---
+<Base
+  title={project.name}
+  description={description}
+  lang={lang}
+  path={projectPath(lang, project.id)}
+  section="projects"
+  alternates={languages.map((l) => ({ lang: l, path: projectPath(l, project.id) }))}
+  image={latest?.entry.data.image}
+  imageAlt={latest?.entry.data.imageAlt}
+>
+  <div class="mx-auto max-w-[64.5rem] px-6">
+    <div class="pt-14 pb-10 sm:pt-20 sm:pb-12">
+      <div class="flex items-center gap-3">
+        <span class="size-3.5 rounded-full" style={`background: ${project.colour}`} aria-hidden="true"></span>
+        {project.github && <span class="stamp">{project.github}</span>}
+      </div>
+      <h1 class="display mt-4 text-[clamp(4rem,13vw,8.5rem)]">{project.name}</h1>
+      {about && <p class="mt-5 max-w-[40rem] text-[18px] leading-relaxed text-muted sm:text-[20px]">{about}</p>}
+      {project.repo && (
+        <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+          <StarButton repo={project.repo} lang={lang} count={count} />
+          <a href={project.repo} class="inline-flex items-center gap-2 text-[15px] font-medium text-muted hover:text-text">
+            <Icon name="github" size={16} />
+            {words.repository}
+          </a>
+          {count !== undefined && <span class="sr-only">{fill(words.stars, { count })}</span>}
+        </div>
+      )}
+    </div>
+    <section aria-label={fill(words.launches, { project: project.name })}>
+      <ProjectTabs lang={lang} projects={projects} active={project.id} />
+      {posts.length > 0 ? (
+        <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+          {posts.map((post) => <PostCard post={post} project={project} />)}
+        </div>
+      ) : (
+        <p class="card mt-4 p-8 text-muted">{words.noLaunches}</p>
+      )}
+    </section>
+  </div>
+</Base>

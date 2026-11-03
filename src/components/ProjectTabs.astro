@@ -1,0 +1,37 @@
+---
+// The index's filter: All, then one tab per project, each a page of its own (no script), with the
+// feed on the right. The active tab is one of the three yellow things on the site.
+import Icon from './Icon.astro';
+import { t } from '../lib/i18n.ts';
+import { href, homePath, projectPath, rssPath, type Project } from '../lib/posts.ts';
+
+interface Props {
+  lang: string;
+  projects: Project[];
+  /** The project whose tab is open; none means All */
+  active?: string | undefined;
+}
+const { lang, projects, active } = Astro.props;
+const words = t(lang);
+const tabs = [{ id: undefined as string | undefined, label: words.all, path: homePath(lang) }, ...projects.map((p) => ({ id: p.id as string | undefined, label: p.name, path: projectPath(lang, p.id) }))];
+---
+<div class="flex items-center justify-between gap-4">
+  <nav aria-label={words.projects} class="-mx-1 overflow-x-auto px-1 py-1">
+    <ul class="flex items-center gap-1.5 text-[15px] font-medium whitespace-nowrap">
+      {tabs.map((tab) => (
+        <li>
+          <a
+            href={href(tab.path)}
+            class:list={['block rounded-lg px-3 py-1.5 transition-colors', tab.id === active ? 'bg-yellow font-semibold text-on-yellow' : 'text-muted hover:bg-raised hover:text-text']}
+            aria-current={tab.id === active ? 'page' : undefined}
+          >
+            {tab.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+  <a href={href(rssPath(lang))} class="grid size-9 shrink-0 place-items-center rounded-lg text-muted hover:text-text" aria-label={words.rss}>
+    <Icon name="rss" size={16} />
+  </a>
+</div>

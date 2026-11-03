@@ -1,0 +1,19 @@
+---
+// "Star on GitHub": a link to the repository, where the star is one click. The count shows from 10
+// stars up, when the build could read it.
+import Icon from './Icon.astro';
+import { t } from '../lib/i18n.ts';
+
+interface Props {
+  repo: string;
+  lang: string;
+  count?: number | undefined;
+}
+const { repo, lang, count } = Astro.props;
+const words = t(lang);
+---
+<a href={repo} class="star-button" data-umami-event="star-click" data-umami-event-repo={repo}>
+  <Icon name="star" size={16} />
+  <span>{words.starOnGitHub}</span>
+  {count !== undefined && <span class="border-l border-black/25 pl-2 font-mono text-[12px]">{new Intl.NumberFormat(lang, { notation: 'compact' }).format(count)}</span>}
+</a>

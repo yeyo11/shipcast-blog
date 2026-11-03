@@ -1,0 +1,339 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter-tight/wght.css";
+@import "@fontsource-variable/phudu/wght.css";
+@import "@fontsource-variable/jetbrains-mono/wght.css";
+
+/*
+ * Shipcast's palette (design/tokens.css in yeyo11/shipcast): night by default, day on a toggle. The
+ * yellow is the one accent and appears in three places only: the logo, the active tab and the star
+ * button. Components use the role names below, so a theme is one attribute on <html>.
+ */
+:root,
+[data-theme="night"] {
+  color-scheme: dark;
+  --ground: #141413;
+  --raised: #1f1f1d;
+  --hairline: #33322f;
+  --rail: #76746d;
+  --text: #f4f2ec;
+  --muted: #a9a69e;
+  --yellow: #ffd43b;
+  --on-yellow: #000000;
+  --stamp: #000000;
+}
+
+[data-theme="day"] {
+  color-scheme: light;
+  --ground: #ffffff;
+  --raised: #edeef0;
+  --hairline: #d6d5d1;
+  --rail: #7a7872;
+  --text: #0d0d0d;
+  --muted: #5a5852;
+  --yellow: #ffd43b;
+  --on-yellow: #000000;
+  --stamp: #000000;
+}
+
+@theme inline {
+  --color-ground: var(--ground);
+  --color-raised: var(--raised);
+  --color-hairline: var(--hairline);
+  --color-rail: var(--rail);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-yellow: var(--yellow);
+  --color-on-yellow: var(--on-yellow);
+}
+
+@theme {
+  --font-display: "Phudu Variable", "Arial Narrow", system-ui, sans-serif;
+  --font-sans: "Inter Tight Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+@layer base {
+  html {
+    background: var(--ground);
+    color: var(--text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    min-height: 100dvh;
+  }
+  ::selection {
+    background: var(--yellow);
+    color: var(--on-yellow);
+  }
+  :focus-visible {
+    outline: 2px solid var(--text);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+}
+
+@layer components {
+  /* The display face: Phudu, heavy and uppercase, only for the big titles */
+  .display {
+    font-family: var(--font-display);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.035em;
+    line-height: 0.9;
+    text-wrap: balance;
+  }
+
+  /* Dates and versions: what a machine would write, in the mono face */
+  .stamp {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 20px;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .card {
+    background: var(--raised);
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+  }
+
+  /* The star button: the yellow pill with Shipcast's hard stamp shadow, pressed into it on click */
+  .star-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: var(--yellow);
+    color: var(--on-yellow);
+    border: 1.5px solid var(--stamp);
+    box-shadow: 3px 3px 0 var(--stamp);
+    font-weight: 650;
+    font-size: 14px;
+    line-height: 1.3;
+    white-space: nowrap;
+    transition: transform 80ms, box-shadow 80ms;
+  }
+  .star-button:hover {
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0 var(--stamp);
+  }
+  .star-button:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 var(--stamp);
+  }
+  [data-theme="night"] .star-button {
+    border-color: var(--yellow);
+  }
+
+  /* A generated cover: the project's flat colour, a halftone and its name set huge in black */
+  .gen-cover {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--cover);
+    color: #000;
+    isolation: isolate;
+    container-type: inline-size;
+  }
+  .gen-cover::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgb(0 0 0 / 0.28) 1.3px, transparent 1.6px);
+    background-size: 11px 11px;
+    mask-image: linear-gradient(115deg, transparent 30%, #000 85%);
+    z-index: -1;
+  }
+  .gen-cover-name {
+    position: absolute;
+    left: 6%;
+    bottom: 4%;
+    right: 6%;
+    font-family: var(--font-display);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.04em;
+    line-height: 0.82;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* The article's body: a narrow text column, with images and code wider than the text */
+.prose {
+  --measure: 44.625rem;
+  display: grid;
+  grid-template-columns: [wide-start] minmax(0, 1fr) [text-start] min(100%, var(--measure)) [text-end] minmax(0, 1fr) [wide-end];
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--text);
+}
+.prose > * {
+  grid-column: text;
+  margin-top: 1.25em;
+}
+.prose > :first-child {
+  margin-top: 0;
+}
+.prose > .figure {
+  grid-column: wide;
+  margin-top: 2.5rem;
+  margin-bottom: 1.25rem;
+}
+.prose .figure img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid var(--hairline);
+}
+.prose img {
+  max-width: 100%;
+  height: auto;
+}
+.prose h2 {
+  margin-top: 2.6em;
+  font-size: 26px;
+  line-height: 1.2;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.prose h3 {
+  margin-top: 2em;
+  font-size: 20px;
+  line-height: 1.3;
+  font-weight: 650;
+}
+.prose h2 + *,
+.prose h3 + * {
+  margin-top: 0.75em;
+}
+.prose a {
+  text-decoration: underline;
+  text-decoration-color: var(--rail);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.prose a:hover {
+  text-decoration-color: var(--text);
+}
+.prose strong {
+  font-weight: 650;
+}
+.prose ul,
+.prose ol {
+  padding-left: 1.25em;
+}
+.prose ul {
+  list-style: disc;
+}
+.prose ol {
+  list-style: decimal;
+}
+.prose li + li {
+  margin-top: 0.4em;
+}
+.prose li::marker {
+  color: var(--muted);
+}
+.prose blockquote {
+  border-left: 2px solid var(--rail);
+  padding-left: 1.25em;
+  color: var(--muted);
+}
+.prose blockquote strong {
+  color: var(--text);
+}
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--hairline);
+  margin-top: 3em;
+}
+.prose :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  background: var(--raised);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  padding: 0.1em 0.35em;
+}
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  display: block;
+  overflow-x: auto;
+}
+.prose th,
+.prose td {
+  text-align: left;
+  padding: 0.5em 0.75em;
+  border-bottom: 1px solid var(--hairline);
+}
+.prose th {
+  font-weight: 650;
+}
+
+/* Code blocks: a bar with the language and Copy, then Shiki's lines in both themes */
+.prose > .code-block {
+  margin-top: 1.75em;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--raised);
+  overflow: hidden;
+}
+.code-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.35rem 0.5rem 0.35rem 1rem;
+  border-bottom: 1px solid var(--hairline);
+}
+.code-lang {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.code-copy {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.code-copy:hover {
+  color: var(--text);
+  border-color: var(--hairline);
+}
+.prose pre {
+  margin: 0;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.6;
+  background: transparent !important;
+}
+.prose pre code {
+  font-family: inherit;
+}
+[data-theme="night"] .astro-code,
+[data-theme="night"] .astro-code span {
+  color: var(--shiki-dark);
+}
+[data-theme="day"] .astro-code,
+[data-theme="day"] .astro-code span {
+  color: var(--shiki-light);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .star-button {
+    transition: none;
+  }
+}
