@@ -19,7 +19,7 @@ handles: {}
 #   devto: https://dev.to/you
 
 # The blog's languages, as ISO 639-1 codes, the primary one first: [en], [en, es], [de]...
-# With one language the pages have no language prefix; with several, each page lives under /<lang>/.
+# Articles always live under /<lang>/<slug>/, as Shipcast links them; with several languages the other pages do too.
 languages:
   blog: [en]
 
