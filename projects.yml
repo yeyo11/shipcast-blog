@@ -1,0 +1,8 @@
+# The projects this blog launches: each one's flat colour, its motif and, optionally, a cover (a site
+# path under public/). Shipcast reads this file when it draws a launch's images and adds a generated
+# cover here, so it is validated strictly: colour, motif and cover only. The blog paints a project's
+# default cover with its colour. What a project's page says lives in src/content/projects/<name>.yml.
+# Keys are lowercase repo names. Motifs: phone, terminal, label, wave, orb, stack.
+shipcast:
+  colour: "#FFD43B"
+  motif: label

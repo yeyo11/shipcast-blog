@@ -1,0 +1,35 @@
+# Who this blog speaks for. Shipcast reads this file to sign the articles, pick each channel's
+# language and tone and link your profiles (its schema: packages/schema/src/brand.ts in
+# yeyo11/shipcast); the blog reads it for the author, the languages and the site's address. Shipcast
+# refuses keys it does not know, so the blog's own settings live in blog.yml.
+# Public information only: tokens are repository secrets, never here.
+id: personal
+displayName: José Antonio Garrido
+# Where the blog is served: https://, no trailing slash. Shipcast links every post as
+# <site>/<lang>/<slug>/. The GitHub Pages deploy takes the real address from Pages itself.
+site: https://yeyo11.github.io/shipcast-blog
+# Your GitHub login: the header and the footer link https://github.com/<github>
+github: yeyo11
+
+# Your profiles, as full URLs. A channel without its handle is not published to.
+handles: {}
+# handles:
+#   bluesky: https://bsky.app/profile/you.bsky.social
+#   mastodon: https://mastodon.social/@you
+#   devto: https://dev.to/you
+
+# The blog's languages, as ISO 639-1 codes, the primary one first: [en], [en, es], [de]...
+# With one language the pages have no language prefix; with several, each page lives under /<lang>/.
+languages:
+  blog: [en]
+
+# How the AI writes for you, in a few sentences. Shipcast never makes one up.
+tone: ""
+
+# Optional: your photo, a public https URL, shown beside your name.
+# avatar: https://example.com/me.jpg
+
+# Optional: Cloudflare Web Analytics, the one analytics setting Shipcast's schema knows. Umami and
+# Plausible are set in blog.yml.
+# analytics:
+#   cloudflareWebAnalytics: 0123456789abcdef0123456789abcdef

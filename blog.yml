@@ -1,0 +1,20 @@
+# The blog's own settings, the ones Shipcast does not read: brand.yml says who you are, this file how
+# the site presents itself.
+
+# The home page's title and the line under it, per language code. A language left out takes the
+# first one listed.
+title:
+  en: Launches
+description:
+  en: What I ship, one release at a time.
+
+# Cookieless analytics: off until you pick a provider, and loaded only in production builds.
+#   provider: umami       websiteId, and src (your instance's script; Umami Cloud's by default)
+#   provider: plausible   domain, and src (plausible.io's script by default)
+#   provider: cloudflare  token (or analytics.cloudflareWebAnalytics in brand.yml)
+analytics:
+  provider: none
+# analytics:
+#   provider: umami
+#   websiteId: 00000000-0000-0000-0000-000000000000
+#   src: https://cloud.umami.is/script.js
