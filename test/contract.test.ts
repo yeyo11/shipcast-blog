@@ -81,15 +81,17 @@ test('the build accepts the fixtures and renders a page for each', { timeout: 18
       encoding: 'utf8',
     });
     assert.equal(run.status, 0, `astro build failed:\n${run.stdout}\n${run.stderr}`);
-    // With several languages in brand.yml every page lives under /<lang>/
-    const brand = parse(readFileSync(join(root, 'brand.yml'), 'utf8')) as { languages?: { blog?: string[] } };
-    const multilingual = (brand.languages?.blog ?? ['en']).length > 1;
+    // At /<lang>/<slug>/, the address Shipcast links every post to, whatever the number of languages
     for (const file of fixtures) {
       const [lang, name] = file.split('/').slice(-2) as [string, string];
       const slug = name.replace(/\.md$/, '');
-      const page = multilingual ? join(outDir, lang, slug, 'index.html') : join(outDir, slug, 'index.html');
-      assert.ok(existsSync(page), `no page for ${lang}/${slug}`);
+      assert.ok(existsSync(join(outDir, lang, slug, 'index.html')), `no page at /${lang}/${slug}/`);
     }
+    // Served there, not redirected: the page's canonical URL is its own address
+    const [lang, name] = fixtures[0]!.split('/').slice(-2) as [string, string];
+    const html = readFileSync(join(outDir, lang, name.replace(/\.md$/, ''), 'index.html'), 'utf8');
+    assert.match(html, new RegExp(`<link rel="canonical" href="[^"]*/${lang}/${name.replace(/\.md$/, '')}/"`));
+    assert.doesNotMatch(html, /http-equiv="refresh"/);
   } finally {
     rmSync(work, { recursive: true, force: true });
   }

@@ -55,13 +55,13 @@ the line under it, per language, and analytics (below).
 
 ### Languages
 
-With one language (the default), pages have no language prefix: `/`, `/my-article/`, `/projects/`.
-That keeps a one-language blog's addresses short. Shipcast always links an article as
-`<site>/<lang>/<slug>/`, so the blog also answers there, with a page that redirects to the article's
-own address and carries the same title, description and image, so link cards still show the article.
+Articles always live at `/<lang>/<slug>/`, even with one language: that is the address Shipcast
+links every post to, so the URL in your posts, the canonical URL dev.to points to and the one search
+engines index are the same page, with no redirect in between. With one language (the default) the
+index pages sit at the root: `/`, `/projects/`, `/rss.xml`, and they link to `/en/<slug>/`.
 
-With two or more languages (`languages: { blog: [en, es] }`), every page lives under its language,
-`/en/…` and `/es/…`, the language versions of an article link each other and carry `hreflang`, each
+With two or more languages (`languages: { blog: [en, es] }`), the index pages move under their
+language too, `/en/…` and `/es/…`, the language versions of an article link each other and carry `hreflang`, each
 language has its own feed at `/<lang>/rss.xml`, and `/` sends readers to their language. The
 template's own words (buttons, labels) come in English and Spanish; add yours to `src/lib/i18n.ts`.
 

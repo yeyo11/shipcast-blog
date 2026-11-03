@@ -13,8 +13,8 @@ export interface Post {
   project?: string;
 }
 
-// Paths that pages own, so no article may take them
-const RESERVED = new Set(['projects', 'rss', 'rss.xml', '404', 'robots.txt', 'sitemap-index.xml', ...languages]);
+// Paths under /<lang>/ that pages own, so no article may take them
+const RESERVED = new Set(['projects', 'rss.xml']);
 
 let cache: Promise<Post[]> | undefined;
 
@@ -91,9 +91,12 @@ export async function projectById(id: string | undefined): Promise<Project | und
 
 // Paths, before the base: '/', '/en/', '/en/my-article/'
 
+// Index pages sit at the root on a one-language blog and under /<lang>/ with several. Articles always
+// live at /<lang>/<slug>/, the address Shipcast links every post to (articleUrl in its schema), so the
+// canonical URL is the one the posts, dev.to and Search Console all see.
 export const prefix = (lang: string): string => (multilingual ? `/${lang}` : '');
 export const homePath = (lang: string): string => `${prefix(lang)}/`;
-export const postPath = (post: Pick<Post, 'lang' | 'slug'>): string => `${prefix(post.lang)}/${post.slug}/`;
+export const postPath = (post: Pick<Post, 'lang' | 'slug'>): string => `/${post.lang}/${post.slug}/`;
 export const projectsPath = (lang: string): string => `${prefix(lang)}/projects/`;
 export const projectPath = (lang: string, id: string): string => `${prefix(lang)}/projects/${id}/`;
 export const rssPath = (lang: string): string => `${prefix(lang)}/rss.xml`;

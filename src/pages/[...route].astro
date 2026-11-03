@@ -1,8 +1,7 @@
 ---
-// Every HTML page but the 404, from one route so the language prefix can come and go: with one
-// language in brand.yml the pages live at the root (/, /my-article/, /projects/); with several, under
-// /<lang>/. Shipcast always links an article as <site>/<lang>/<slug>/, so on a one-language blog that
-// address is kept too, as a redirect to the article's own (see README, "Languages").
+// Every HTML page but the 404, from one route so the index pages' language prefix can come and go:
+// with one language in brand.yml they live at the root (/, /projects/); with several, under /<lang>/.
+// Articles always live at /<lang>/<slug>/, exactly as Shipcast links them (see README, "Languages").
 import type { GetStaticPaths } from 'astro';
 import ArticlePage from '../components/pages/ArticlePage.astro';
 import HomePage from '../components/pages/HomePage.astro';
@@ -17,7 +16,6 @@ type Page =
   | { kind: 'projects'; lang: string }
   | { kind: 'project'; lang: string; project: Project }
   | { kind: 'post'; post: Post }
-  | { kind: 'alias'; post: Post }
   | { kind: 'languages' };
 
 export const getStaticPaths = (async () => {
@@ -31,10 +29,7 @@ export const getStaticPaths = (async () => {
     add(`${homePath(lang)}projects/`, { kind: 'projects', lang });
     for (const project of projects) add(`${homePath(lang)}projects/${project.id}/`, { kind: 'project', lang, project });
   }
-  for (const post of posts) {
-    add(postPath(post), { kind: 'post', post });
-    if (!multilingual) add(`/${post.lang}/${post.slug}/`, { kind: 'alias', post });
-  }
+  for (const post of posts) add(postPath(post), { kind: 'post', post });
   if (multilingual) add('/', { kind: 'languages' });
   return pages;
 }) satisfies GetStaticPaths;
@@ -45,15 +40,6 @@ const { page } = Astro.props as { page: Page };
 {page.kind === 'projects' && <ProjectsPage lang={page.lang} />}
 {page.kind === 'project' && <ProjectPage lang={page.lang} project={page.project} />}
 {page.kind === 'post' && <ArticlePage post={page.post} />}
-{page.kind === 'alias' && (
-  <RedirectPage
-    lang={page.post.lang}
-    to={postPath(page.post)}
-    title={page.post.entry.data.title}
-    description={page.post.entry.data.description}
-    image={page.post.entry.data.image ?? page.post.entry.data.cover}
-  />
-)}
 {page.kind === 'languages' && (
   <RedirectPage
     lang={primaryLanguage}

@@ -1,7 +1,5 @@
 ---
-// A page that only sends the reader on: to the article's own address from the /<lang>/<slug>/ one
-// Shipcast links to on a one-language blog, or to a language from / on a blog with several. It keeps
-// the article's title, description and image, so a link card built from this address still shows it.
+// The root of a blog with several languages: it sends the reader to theirs, or to the primary one.
 import { absolute, href } from '../../lib/posts.ts';
 import { brand } from '../../lib/site.ts';
 import { languageName, t } from '../../lib/i18n.ts';

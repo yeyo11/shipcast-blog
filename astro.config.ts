@@ -3,19 +3,16 @@ import { unified } from '@astrojs/markdown-remark';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import { rehypeArticle, rehypeBasePaths } from './src/markdown/rehype.ts';
-import { languages, multilingual, siteAndBase } from './src/lib/site.ts';
+import { multilingual, siteAndBase } from './src/lib/site.ts';
 
 // Where the site is served: SITE_URL (the GitHub Pages deploy sets it to the address Pages gives the
 // repo), else brand.yml's `site`. A project site such as https://you.github.io/blog/ gets base /blog.
 const { site, base } = siteAndBase();
 const root = `${site}${base === '/' ? '' : base}`;
 
-// Pages that only send the reader elsewhere stay out of the sitemap: the language picker at / when
-// there are several languages, and the /<lang>/<slug>/ addresses Shipcast links to when there is one
-// (each is a redirect to the article's own address, see src/pages/[...route].astro)
+// With several languages, / only sends readers to theirs: it stays out of the sitemap
 function inSitemap(page: string): boolean {
-  if (multilingual) return page !== `${root}/`;
-  return !page.startsWith(`${root}/${languages[0]}/`);
+  return !multilingual || page !== `${root}/`;
 }
 
 export default defineConfig({
