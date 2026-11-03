@@ -81,9 +81,14 @@ test('the build accepts the fixtures and renders a page for each', { timeout: 18
       encoding: 'utf8',
     });
     assert.equal(run.status, 0, `astro build failed:\n${run.stdout}\n${run.stderr}`);
+    // With several languages in brand.yml every page lives under /<lang>/
+    const brand = parse(readFileSync(join(root, 'brand.yml'), 'utf8')) as { languages?: { blog?: string[] } };
+    const multilingual = (brand.languages?.blog ?? ['en']).length > 1;
     for (const file of fixtures) {
-      const slug = file.split('/').at(-1)!.replace(/\.md$/, '');
-      assert.ok(existsSync(join(outDir, slug, 'index.html')), `no page for ${slug}`);
+      const [lang, name] = file.split('/').slice(-2) as [string, string];
+      const slug = name.replace(/\.md$/, '');
+      const page = multilingual ? join(outDir, lang, slug, 'index.html') : join(outDir, slug, 'index.html');
+      assert.ok(existsSync(page), `no page for ${lang}/${slug}`);
     }
   } finally {
     rmSync(work, { recursive: true, force: true });
